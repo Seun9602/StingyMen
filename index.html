@@ -26,12 +26,12 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 2px solid #ccc; /* Optional border for separation */
+            border-bottom: 2px solid #ccc;
         }
 
         .logo img {
-            width: 50px; /* Adjust based on actual logo size */
-            filter: grayscale(100%); /* For black and white style */
+            width: 50px;
+            filter: grayscale(100%);
         }
 
         nav ul {
@@ -44,7 +44,7 @@
         }
 
         nav ul li a {
-            color: black; /* Changed to black */
+            color: black;
             text-decoration: none;
             font-weight: bold;
         }
@@ -79,38 +79,15 @@
             text-align: center;
             padding: 10px;
             background-color: white;
-            color: black; /* Changed to black */
+            color: black;
             margin-top: 20px;
-            border-top: 1px solid #ccc; /* Optional border for separation */
+            border-top: 1px solid #ccc;
         }
 
         .hidden {
             display: none;
         }
 
-        /* Styling for popups */
-        .popup,
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: white;
-            border: 1px solid #ccc;
-            padding: 20px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
-            z-index: 1000;
-        }
-
-        .overlay {
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-        }
-
-        /* Feed textarea and image input */
         textarea {
             width: 100%;
             height: 60px;
@@ -136,31 +113,24 @@
             background-color: #f9f9f9;
         }
 
-        /* Modern look for news feed */
-        .news-feed {
-            border-top: 1px solid #ccc;
-            padding-top: 10px;
-        }
-
         .news-feed img {
             max-width: 100%;
             border-radius: 5px;
         }
 
-        /* Sign Up Button Style */
         button {
-            background-color: black; /* Black background */
-            color: white; /* White text */
+            background-color: black;
+            color: white;
             border: none;
             padding: 10px 15px;
             border-radius: 3px;
             cursor: pointer;
             margin: 8px;
-            transition: background-color 0.3s; /* Smooth transition */
+            transition: background-color 0.3s;
         }
 
         button:hover {
-            background-color: gray; /* Change to gray on hover */
+            background-color: gray;
         }
     </style>
 </head>
@@ -168,7 +138,7 @@
 <body>
     <header>
         <div class="logo">
-            <img src= "c:\Users\User\Stingy Men\Images\Stingy Men.jpg" alt="Stingy Men Logo"> <!-- Assuming 'logo.png' is in black and white -->
+            <img src="c:\Users\User\Desktop\Stingy Men\Images\Stingy Men.jpg" alt="Stingy Men Logo">
             <h1>Stingy Men</h1>
         </div>
         <nav>
@@ -177,7 +147,7 @@
                 <li><a href="#" onclick="showSection('aboutSection')">About Us</a></li>
                 <li><a href="#" onclick="showSection('contactSection')">Contact Us</a></li>
                 <li><a href="#" onclick="showSection('loginSection')">Login</a></li>
-                <li><a href="#" onclick="showSection('messagesSection')">Messages</a></li>
+                <li><a href="#" onclick="showSection('signupSection')">Signup</a></li>
             </ul>
         </nav>
     </header>
@@ -202,7 +172,7 @@
                 <h4>What's on Your Mind?</h4>
                 <form id="postForm" onsubmit="postUpdate(event)">
                     <textarea id="postInput" placeholder="Write something..." required></textarea>
-                    <input type="file" id="imageUpload" accept="image/*" />
+                    <input type="file" id="imageUpload" accept="image/*">
                     <button type="submit">Post</button>
                 </form>
 
@@ -215,10 +185,7 @@
 
             <div id="aboutSection" class="hidden">
                 <h2>About Us</h2>
-                <p>Welcome to Stingy Men, a modern social networking platform where connections are meaningful, ideas are shared,
-                    and boundaries are respected. Our mission is to create a safe and inclusive space for everyone to express
-                    themselves while fostering a community of mutual respect and understanding. Join us in building a network
-                    where every voice matters.</p>
+                <p>Welcome to Stingy Men, a modern social networking platform where connections are meaningful, ideas are shared, and boundaries are respected.</p>
             </div>
 
             <div id="contactSection" class="hidden">
@@ -228,16 +195,21 @@
 
             <div id="loginSection" class="hidden">
                 <h2>Login</h2>
-                <form>
-                    <input type="text" placeholder="Username" required>
-                    <input type="password" placeholder="Password" required>
+                <form id="loginForm">
+                    <input type="text" id="loginUsername" placeholder="Username" required>
+                    <input type="password" id="loginPassword" placeholder="Password" required>
                     <button type="submit">Login</button>
                 </form>
             </div>
 
-            <div id="messagesSection" class="hidden">
-                <h2>Messages</h2>
-                <p>Your messages will be displayed here.</p>
+            <div id="signupSection" class="hidden">
+                <h2>Signup</h2>
+                <form id="signupForm">
+                    <input type="text" id="signupUsername" placeholder="Username" required>
+                    <input type="email" id="signupEmail" placeholder="Email" required>
+                    <input type="password" id="signupPassword" placeholder="Password" required>
+                    <button type="submit">Signup</button>
+                </form>
             </div>
         </main>
     </div>
@@ -246,60 +218,64 @@
         <p>&copy; 2025 Stingy Men. All rights reserved.</p>
     </footer>
 
-    <!-- Popup for posting -->
-    <div class="overlay" id="overlay"></div>
-    <div class="popup" id="popup">
-        <p>Your subscription to the newsletter has been confirmed!</p>
-        <button id="closePopup">Close</button>
-    </div>
-
     <script>
+        const API_URL = "http://localhost:5000";
+
         function showSection(sectionId) {
-            // Hide all sections
-            const sections = ['homeSection', 'aboutSection', 'contactSection', 'loginSection', 'messagesSection'];
+            const sections = ['homeSection', 'aboutSection', 'contactSection', 'loginSection', 'signupSection'];
             sections.forEach(id => {
                 document.getElementById(id).classList.add('hidden');
             });
-            // Show the selected section
             document.getElementById(sectionId).classList.remove('hidden');
         }
 
-        function postUpdate(event) {
+        document.getElementById("loginForm").addEventListener("submit", async (event) => {
             event.preventDefault();
-            const postInput = document.getElementById('postInput').value;
-            const imageUpload = document.getElementById('imageUpload').files[0];
-            const commentsSection = document.getElementById('commentsSection');
-
-            // Create a new comment and append it to the comments section
-            const newComment = document.createElement('div');
-            newComment.innerHTML = `<strong>You:</strong> ${postInput}`;
-
-            // Handle image upload
-            if (imageUpload) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.alt = "User Image";
-                    newComment.appendChild(img);
+            const username = document.getElementById("loginUsername").value;
+            const password = document.getElementById("loginPassword").value;
+            try {
+                const response = await fetch(`${API_URL}/login`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password }),
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert("Login successful");
+                    localStorage.setItem("token", data.token);
+                    showSection("homeSection");
+                } else {
+                    alert(data.message);
                 }
-                reader.readAsDataURL(imageUpload);
+            } catch (error) {
+                console.error("Login error:", error);
             }
-
-            commentsSection.appendChild(newComment);
-
-            // Clear the input
-            document.getElementById('postInput').value = '';
-            document.getElementById('imageUpload').value = '';
-        }
-
-        document.getElementById('closePopup').addEventListener('click', function () {
-            document.getElementById('overlay').style.display = 'none';
-            document.getElementById('popup').style.display = 'none';
         });
 
-        // Show the home section by default
-        showSection('homeSection');
+        document.getElementById("signupForm").addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const username = document.getElementById("signupUsername").value;
+            const email = document.getElementById("signupEmail").value;
+            const password = document.getElementById("signupPassword").value;
+            try {
+                const response = await fetch(`${API_URL}/signup`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, email, password }),
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert("Signup successful");
+                    showSection("loginSection");
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                console.error("Signup error:", error);
+            }
+        });
+
+        showSection("homeSection");
     </script>
 </body>
 
