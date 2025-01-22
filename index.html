@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stingy Men</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-firestore.js"></script>
     <style>
         * {
             margin: 0;
@@ -26,12 +29,12 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 2px solid #ccc;
+            border-bottom: 2px solid #ccc; /* Optional border for separation */
         }
 
         .logo img {
-            width: 50px;
-            filter: grayscale(100%);
+            width: 50px; /* Adjust based on actual logo size */
+            filter: grayscale(100%); /* For black and white style */
         }
 
         nav ul {
@@ -44,7 +47,7 @@
         }
 
         nav ul li a {
-            color: black;
+            color: black; /* Changed to black */
             text-decoration: none;
             font-weight: bold;
         }
@@ -79,15 +82,38 @@
             text-align: center;
             padding: 10px;
             background-color: white;
-            color: black;
+            color: black; /* Changed to black */
             margin-top: 20px;
-            border-top: 1px solid #ccc;
+            border-top: 1px solid #ccc; /* Optional border for separation */
         }
 
         .hidden {
             display: none;
         }
 
+        /* Styling for popups */
+        .popup,
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            border: 1px solid #ccc;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+
+        .overlay {
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        /* Feed textarea and image input */
         textarea {
             width: 100%;
             height: 60px;
@@ -113,24 +139,31 @@
             background-color: #f9f9f9;
         }
 
+        /* Modern look for news feed */
+        .news-feed {
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+        }
+
         .news-feed img {
             max-width: 100%;
             border-radius: 5px;
         }
 
+        /* Sign Up Button Style */
         button {
-            background-color: black;
-            color: white;
+            background-color: black; /* Black background */
+            color: white; /* White text */
             border: none;
             padding: 10px 15px;
             border-radius: 3px;
             cursor: pointer;
             margin: 8px;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s; /* Smooth transition */
         }
 
         button:hover {
-            background-color: gray;
+            background-color: gray; /* Change to gray on hover */
         }
     </style>
 </head>
@@ -138,7 +171,7 @@
 <body>
     <header>
         <div class="logo">
-            <img src="c:\Users\User\Desktop\Stingy Men\Images\Stingy Men.jpg" alt="Stingy Men Logo">
+            <img src="c:\Users\User\Stingy Men\Images\Stingy Men.jpg" alt="Stingy Men Logo">
             <h1>Stingy Men</h1>
         </div>
         <nav>
@@ -147,7 +180,7 @@
                 <li><a href="#" onclick="showSection('aboutSection')">About Us</a></li>
                 <li><a href="#" onclick="showSection('contactSection')">Contact Us</a></li>
                 <li><a href="#" onclick="showSection('loginSection')">Login</a></li>
-                <li><a href="#" onclick="showSection('signupSection')">Signup</a></li>
+                <li><a href="#" onclick="showSection('messagesSection')">Messages</a></li>
             </ul>
         </nav>
     </header>
@@ -172,7 +205,7 @@
                 <h4>What's on Your Mind?</h4>
                 <form id="postForm" onsubmit="postUpdate(event)">
                     <textarea id="postInput" placeholder="Write something..." required></textarea>
-                    <input type="file" id="imageUpload" accept="image/*">
+                    <input type="file" id="imageUpload" accept="image/*" />
                     <button type="submit">Post</button>
                 </form>
 
@@ -185,7 +218,10 @@
 
             <div id="aboutSection" class="hidden">
                 <h2>About Us</h2>
-                <p>Welcome to Stingy Men, a modern social networking platform where connections are meaningful, ideas are shared, and boundaries are respected.</p>
+                <p>Welcome to Stingy Men, a modern social networking platform where connections are meaningful, ideas are shared,
+                    and boundaries are respected. Our mission is to create a safe and inclusive space for everyone to express
+                    themselves while fostering a community of mutual respect and understanding. Join us in building a network
+                    where every voice matters.</p>
             </div>
 
             <div id="contactSection" class="hidden">
@@ -195,21 +231,27 @@
 
             <div id="loginSection" class="hidden">
                 <h2>Login</h2>
-                <form id="loginForm">
-                    <input type="text" id="loginUsername" placeholder="Username" required>
+                <form id="loginForm" onsubmit="loginUser(event)">
+                    <input type="text" id="loginUsername" placeholder="Email" required>
                     <input type="password" id="loginPassword" placeholder="Password" required>
                     <button type="submit">Login</button>
                 </form>
+                <h3>Don't have an account? <a href="#" onclick="showSignupForm()">Sign Up</a></h3>
             </div>
 
             <div id="signupSection" class="hidden">
-                <h2>Signup</h2>
-                <form id="signupForm">
-                    <input type="text" id="signupUsername" placeholder="Username" required>
+                <h2>Sign Up</h2>
+                <form id="signupForm" onsubmit="signupUser(event)">
                     <input type="email" id="signupEmail" placeholder="Email" required>
                     <input type="password" id="signupPassword" placeholder="Password" required>
-                    <button type="submit">Signup</button>
+                    <button type="submit">Sign Up</button>
                 </form>
+                <h3>Already have an account? <a href="#" onclick="showLoginForm()">Login</a></h3>
+            </div>
+
+            <div id="messagesSection" class="hidden">
+                <h2>Messages</h2>
+                <p>Your messages will be displayed here.</p>
             </div>
         </main>
     </div>
@@ -218,64 +260,159 @@
         <p>&copy; 2025 Stingy Men. All rights reserved.</p>
     </footer>
 
+    <!-- Popup for posting -->
+    <div class="overlay" id="overlay"></div>
+    <div class="popup" id="popup">
+        <p>Your subscription to the newsletter has been confirmed!</p>
+        <button id="closePopup">Close</button>
+    </div>
+
     <script>
-        const API_URL = "http://localhost:5000";
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBGdhHET0KHcVYpVN2wGdOqr5T8Xr4rtQM",
+            authDomain: "stingy-men-association-98559.firebaseapp.com",
+            projectId: "stingy-men-association-98559",
+            storageBucket: "stingy-men-association-98559.firebasestorage.app",
+            messagingSenderId: "852775989945",
+            appId: "1:852775989945:web:f0e20f2de819328f87a168",
+            measurementId: "G-KK889SV5CW"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
         function showSection(sectionId) {
-            const sections = ['homeSection', 'aboutSection', 'contactSection', 'loginSection', 'signupSection'];
+            // Hide all sections
+            const sections = ['homeSection', 'aboutSection', 'contactSection', 'loginSection', 'signupSection', 'messagesSection'];
             sections.forEach(id => {
                 document.getElementById(id).classList.add('hidden');
             });
+            // Show the selected section
             document.getElementById(sectionId).classList.remove('hidden');
         }
 
-        document.getElementById("loginForm").addEventListener("submit", async (event) => {
+        function showSignupForm() {
+            showSection('signupSection');
+        }
+
+        function showLoginForm() {
+            showSection('loginSection');
+        }
+
+        function loginUser(event) {
             event.preventDefault();
-            const username = document.getElementById("loginUsername").value;
-            const password = document.getElementById("loginPassword").value;
-            try {
-                const response = await fetch(`${API_URL}/login`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ username, password }),
+            const email = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then(() => {
+                    alert("Login successful!");
+                    // Optionally redirect or update UI
+                })
+                .catch((error) => {
+                    alert(error.message);
                 });
-                const data = await response.json();
-                if (response.ok) {
-                    alert("Login successful");
-                    localStorage.setItem("token", data.token);
-                    showSection("homeSection");
-                } else {
-                    alert(data.message);
-                }
-            } catch (error) {
-                console.error("Login error:", error);
+        }
+
+        function signupUser(event) {
+            event.preventDefault();
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+
+            auth.createUserWithEmailAndPassword(email, password)
+                .then(() => {
+                    alert("Sign up successful!");
+                    showLoginForm();
+                })
+                .catch((error) => {
+                    alert(error.message);
+                });
+        }
+
+        function postUpdate(event) {
+            event.preventDefault();
+            const postInput = document.getElementById('postInput').value;
+            const imageUpload = document.getElementById('imageUpload').files[0];
+            const commentsSection = document.getElementById('commentsSection');
+
+            // Create a new post object
+            const newPost = {
+                text: postInput,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            // If an image is uploaded, store it in Firebase Storage
+            if (imageUpload) {
+                const storageRef = firebase.storage().ref();
+                const fileRef = storageRef.child(`images/${imageUpload.name}`);
+                fileRef.put(imageUpload).then((snapshot) => {
+                    // Get the download URL of the uploaded image
+                    snapshot.ref.getDownloadURL().then((imageUrl) => {
+                        newPost.imageUrl = imageUrl;
+                        // Add the post to Firestore
+                        db.collection('posts').add(newPost).then((docRef) => {
+                            // Update the UI with the new post
+                            const newComment = document.createElement('div');
+                            newComment.innerHTML = `<strong>You:</strong> ${postInput}`;
+                            if (imageUrl) {
+                                const img = document.createElement('img');
+                                img.src = imageUrl;
+                                img.alt = "User Image";
+                                newComment.appendChild(img);
+                            }
+                            commentsSection.appendChild(newComment);
+                            document.getElementById('postInput').value = '';
+                            document.getElementById('imageUpload').value = '';
+                        });
+                    });
+                });
+            } else {
+                // Add the post to Firestore without an image
+                db.collection('posts').add(newPost).then((docRef) => {
+                    // Update the UI with the new post
+                    const newComment = document.createElement('div');
+                    newComment.innerHTML = `<strong>You:</strong> ${postInput}`;
+                    commentsSection.appendChild(newComment);
+                    document.getElementById('postInput').value = '';
+                    document.getElementById('imageUpload').value = '';
+                });
             }
+        }
+
+        // Function to fetch and display posts from Firestore
+        function fetchPosts() {
+            const commentsSection = document.getElementById('commentsSection');
+            commentsSection.innerHTML = ''; // Clear existing posts
+
+            db.collection('posts').orderBy('timestamp', 'desc').get().then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    const post = doc.data();
+                    const newComment = document.createElement('div');
+                    newComment.innerHTML = `<strong>@${post.author || 'Anonymous'}:</strong> ${post.text}`;
+                    if (post.imageUrl) {
+                        const img = document.createElement('img');
+                        img.src = post.imageUrl;
+                        img.alt = "Post Image";
+                        newComment.appendChild(img);
+                    }
+                    commentsSection.appendChild(newComment);
+                });
+            });
+        }
+
+        // Call fetchPosts() to load initial posts when the page loads
+        fetchPosts();
+
+        document.getElementById('closePopup').addEventListener('click', function () {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('popup').style.display = 'none';
         });
 
-        document.getElementById("signupForm").addEventListener("submit", async (event) => {
-            event.preventDefault();
-            const username = document.getElementById("signupUsername").value;
-            const email = document.getElementById("signupEmail").value;
-            const password = document.getElementById("signupPassword").value;
-            try {
-                const response = await fetch(`${API_URL}/signup`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ username, email, password }),
-                });
-                const data = await response.json();
-                if (response.ok) {
-                    alert("Signup successful");
-                    showSection("loginSection");
-                } else {
-                    alert(data.message);
-                }
-            } catch (error) {
-                console.error("Signup error:", error);
-            }
-        });
-
-        showSection("homeSection");
+        // Show the home section by default
+        showSection('homeSection');
     </script>
 </body>
 
