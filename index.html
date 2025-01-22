@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stingy Men</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+
+        header {
+            background-color: white;
+            color: black;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #ccc; /* Optional border for separation */
+        }
+
+        .logo img {
+            width: 50px; /* Adjust based on actual logo size */
+            filter: grayscale(100%); /* For black and white style */
+        }
+
+        nav ul {
+            list-style-type: none;
+            display: flex;
+        }
+
+        nav ul li {
+            margin-left: 20px;
+        }
+
+        nav ul li a {
+            color: black; /* Changed to black */
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .container {
+            display: flex;
+            margin: 20px;
+        }
+
+        .sidebar {
+            width: 20%;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        .main-content {
+            width: 60%;
+            margin: 0 20px;
+        }
+
+        .feed {
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: white;
+            color: black; /* Changed to black */
+            margin-top: 20px;
+            border-top: 1px solid #ccc; /* Optional border for separation */
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Styling for popups */
+        .popup,
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            border: 1px solid #ccc;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+
+        .overlay {
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        /* Feed textarea and image input */
+        textarea {
+            width: 100%;
+            height: 60px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+
+        #imageUpload {
+            margin-bottom: 10px;
+        }
+
+        .comments {
+            margin-top: 15px;
+        }
+
+        .comments div {
+            margin: 5px 0;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+        /* Modern look for news feed */
+        .news-feed {
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+        }
+
+        .news-feed img {
+            max-width: 100%;
+            border-radius: 5px;
+        }
+
+        /* Sign Up Button Style */
+        button {
+            background-color: black; /* Black background */
+            color: white; /* White text */
+            border: none;
+            padding: 10px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin: 8px;
+            transition: background-color 0.3s; /* Smooth transition */
+        }
+
+        button:hover {
+            background-color: gray; /* Change to gray on hover */
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="logo">
+            <img src= "c:\Users\User\Desktop\Stingy Men\Images\Stingy Men.jpg" alt="Stingy Men Logo"> <!-- Assuming 'logo.png' is in black and white -->
+            <h1>Stingy Men</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#" onclick="showSection('homeSection')">Home</a></li>
+                <li><a href="#" onclick="showSection('aboutSection')">About Us</a></li>
+                <li><a href="#" onclick="showSection('contactSection')">Contact Us</a></li>
+                <li><a href="#" onclick="showSection('loginSection')">Login</a></li>
+                <li><a href="#" onclick="showSection('messagesSection')">Messages</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <div class="profile-section">
+                <h3>User Profile</h3>
+                <form class="profile-form">
+                    <input type="text" placeholder="Username" required>
+                    <input type="text" placeholder="Email" required>
+                    <button type="submit">Save Profile</button>
+                </form>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div id="homeSection" class="feed">
+                <h3>Welcome to Stingy Men!</h3>
+                <p>Join us and connect with others.</p>
+
+                <h4>What's on Your Mind?</h4>
+                <form id="postForm" onsubmit="postUpdate(event)">
+                    <textarea id="postInput" placeholder="Write something..." required></textarea>
+                    <input type="file" id="imageUpload" accept="image/*" />
+                    <button type="submit">Post</button>
+                </form>
+
+                <h4>News Feed</h4>
+                <div class="news-feed" id="commentsSection">
+                    <div><strong>@user1:</strong> This platform is amazing!</div>
+                    <div><strong>@user2:</strong> Loving the new features!</div>
+                </div>
+            </div>
+
+            <div id="aboutSection" class="hidden">
+                <h2>About Us</h2>
+                <p>Welcome to Stingy Men, a modern social networking platform where connections are meaningful, ideas are shared,
+                    and boundaries are respected. Our mission is to create a safe and inclusive space for everyone to express
+                    themselves while fostering a community of mutual respect and understanding. Join us in building a network
+                    where every voice matters.</p>
+            </div>
+
+            <div id="contactSection" class="hidden">
+                <h2>Contact Us</h2>
+                <p>Email: <a href="mailto:support@stingymen.com">support@stingymen.com</a></p>
+            </div>
+
+            <div id="loginSection" class="hidden">
+                <h2>Login</h2>
+                <form>
+                    <input type="text" placeholder="Username" required>
+                    <input type="password" placeholder="Password" required>
+                    <button type="submit">Login</button>
+                </form>
+            </div>
+
+            <div id="messagesSection" class="hidden">
+                <h2>Messages</h2>
+                <p>Your messages will be displayed here.</p>
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Stingy Men. All rights reserved.</p>
+    </footer>
+
+    <!-- Popup for posting -->
+    <div class="overlay" id="overlay"></div>
+    <div class="popup" id="popup">
+        <p>Your subscription to the newsletter has been confirmed!</p>
+        <button id="closePopup">Close</button>
+    </div>
+
+    <script>
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = ['homeSection', 'aboutSection', 'contactSection', 'loginSection', 'messagesSection'];
+            sections.forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            // Show the selected section
+            document.getElementById(sectionId).classList.remove('hidden');
+        }
+
+        function postUpdate(event) {
+            event.preventDefault();
+            const postInput = document.getElementById('postInput').value;
+            const imageUpload = document.getElementById('imageUpload').files[0];
+            const commentsSection = document.getElementById('commentsSection');
+
+            // Create a new comment and append it to the comments section
+            const newComment = document.createElement('div');
+            newComment.innerHTML = `<strong>You:</strong> ${postInput}`;
+
+            // Handle image upload
+            if (imageUpload) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.alt = "User Image";
+                    newComment.appendChild(img);
+                }
+                reader.readAsDataURL(imageUpload);
+            }
+
+            commentsSection.appendChild(newComment);
+
+            // Clear the input
+            document.getElementById('postInput').value = '';
+            document.getElementById('imageUpload').value = '';
+        }
+
+        document.getElementById('closePopup').addEventListener('click', function () {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('popup').style.display = 'none';
+        });
+
+        // Show the home section by default
+        showSection('homeSection');
+    </script>
+</body>
+
+</html>
