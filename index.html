@@ -268,137 +268,139 @@
     </div>
 
     <script>
+    let myDomain = document.domain; // Added line to capture the current domain
+    console.log("Current domain is:", myDomain); // Optional: logs the domain to the console
 
-        function showSection(sectionId) {
-            // Hide all sections
-            const sections = ['homeSection', 'aboutSection', 'contactSection', 'loginSection', 'signupSection', 'messagesSection'];
-            sections.forEach(id => {
-                document.getElementById(id).classList.add('hidden');
+    function showSection(sectionId) {
+        // Hide all sections
+        const sections = ['homeSection', 'aboutSection', 'contactSection', 'loginSection', 'signupSection', 'messagesSection'];
+        sections.forEach(id => {
+            document.getElementById(id).classList.add('hidden');
+        });
+        // Show the selected section
+        document.getElementById(sectionId).classList.remove('hidden');
+    }
+
+    function showSignupForm() {
+        showSection('signupSection');
+    }
+
+    function showLoginForm() {
+        showSection('loginSection');
+    }
+
+    function loginUser(event) {
+        event.preventDefault();
+        const email = document.getElementById('loginUsername').value;
+        const password = document.getElementById('loginPassword').value;
+
+        auth.signInWithEmailAndPassword(email, password)
+            .then(() => {
+                alert("Login successful!");
+                // Optionally redirect or update UI
+            })
+            .catch((error) => {
+                alert(error.message);
             });
-            // Show the selected section
-            document.getElementById(sectionId).classList.remove('hidden');
-        }
+    }
 
-        function showSignupForm() {
-            showSection('signupSection');
-        }
+    function signupUser(event) {
+        event.preventDefault();
+        const email = document.getElementById('signupEmail').value;
+        const password = document.getElementById('signupPassword').value;
 
-        function showLoginForm() {
-            showSection('loginSection');
-        }
+        auth.createUserWithEmailAndPassword(email, password)
+            .then(() => {
+                alert("Sign up successful!");
+                showLoginForm();
+            })
+            .catch((error) => {
+                alert(error.message);
+            });
+    }
 
-        function loginUser(event) {
-            event.preventDefault();
-            const email = document.getElementById('loginUsername').value;
-            const password = document.getElementById('loginPassword').value;
+    function postUpdate(event) {
+        event.preventDefault();
+        const postInput = document.getElementById('postInput').value;
+        const imageUpload = document.getElementById('imageUpload').files[0];
+        const commentsSection = document.getElementById('commentsSection');
 
-            auth.signInWithEmailAndPassword(email, password)
-                .then(() => {
-                    alert("Login successful!");
-                    // Optionally redirect or update UI
-                })
-                .catch((error) => {
-                    alert(error.message);
-                });
-        }
+        // Create a new post object
+        const newPost = {
+            text: postInput,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        };
 
-        function signupUser(event) {
-            event.preventDefault();
-            const email = document.getElementById('signupEmail').value;
-            const password = document.getElementById('signupPassword').value;
-
-            auth.createUserWithEmailAndPassword(email, password)
-                .then(() => {
-                    alert("Sign up successful!");
-                    showLoginForm();
-                })
-                .catch((error) => {
-                    alert(error.message);
-                });
-        }
-
-        function postUpdate(event) {
-            event.preventDefault();
-            const postInput = document.getElementById('postInput').value;
-            const imageUpload = document.getElementById('imageUpload').files[0];
-            const commentsSection = document.getElementById('commentsSection');
-
-            // Create a new post object
-            const newPost = {
-                text: postInput,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            };
-
-            // If an image is uploaded, store it in Firebase Storage
-            if (imageUpload) {
-                const storageRef = firebase.storage().ref();
-                const fileRef = storageRef.child(`images/${imageUpload.name}`);
-                fileRef.put(imageUpload).then((snapshot) => {
-                    // Get the download URL of the uploaded image
-                    snapshot.ref.getDownloadURL().then((imageUrl) => {
-                        newPost.imageUrl = imageUrl;
-                        // Add the post to Firestore
-                        db.collection('posts').add(newPost).then((docRef) => {
-                            // Update the UI with the new post
-                            const newComment = document.createElement('div');
-                            newComment.innerHTML = `<strong>You:</strong> ${postInput}`;
-                            if (imageUrl) {
-                                const img = document.createElement('img');
-                                img.src = imageUrl;
-                                img.alt = "User Image";
-                                newComment.appendChild(img);
-                            }
-                            commentsSection.appendChild(newComment);
-                            document.getElementById('postInput').value = '';
-                            document.getElementById('imageUpload').value = '';
-                        });
+        // If an image is uploaded, store it in Firebase Storage
+        if (imageUpload) {
+            const storageRef = firebase.storage().ref();
+            const fileRef = storageRef.child(`images/${imageUpload.name}`);
+            fileRef.put(imageUpload).then((snapshot) => {
+                // Get the download URL of the uploaded image
+                snapshot.ref.getDownloadURL().then((imageUrl) => {
+                    newPost.imageUrl = imageUrl;
+                    // Add the post to Firestore
+                    db.collection('posts').add(newPost).then((docRef) => {
+                        // Update the UI with the new post
+                        const newComment = document.createElement('div');
+                        newComment.innerHTML = `<strong>You:</strong> ${postInput}`;
+                        if (imageUrl) {
+                            const img = document.createElement('img');
+                            img.src = imageUrl;
+                            img.alt = "User Image";
+                            newComment.appendChild(img);
+                        }
+                        commentsSection.appendChild(newComment);
+                        document.getElementById('postInput').value = '';
+                        document.getElementById('imageUpload').value = '';
                     });
                 });
-            } else {
-                // Add the post to Firestore without an image
-                db.collection('posts').add(newPost).then((docRef) => {
-                    // Update the UI with the new post
-                    const newComment = document.createElement('div');
-                    newComment.innerHTML = `<strong>You:</strong> ${postInput}`;
-                    commentsSection.appendChild(newComment);
-                    document.getElementById('postInput').value = '';
-                    document.getElementById('imageUpload').value = '';
-                });
-            }
-        }
-
-        // Function to fetch and display posts from Firestore
-        function fetchPosts() {
-            const commentsSection = document.getElementById('commentsSection');
-            commentsSection.innerHTML = ''; // Clear existing posts
-
-            db.collection('posts').orderBy('timestamp', 'desc').get().then((querySnapshot) => {
-                querySnapshot.forEach((doc) => {
-                    const post = doc.data();
-                    const newComment = document.createElement('div');
-                    newComment.innerHTML = `<strong>@${post.author || 'Anonymous'}:</strong> ${post.text}`;
-                    if (post.imageUrl) {
-                        const img = document.createElement('img');
-                        img.src = post.imageUrl;
-                        img.alt = "Post Image";
-                        newComment.appendChild(img);
-                    }
-                    commentsSection.appendChild(newComment);
-                });
+            });
+        } else {
+            // Add the post to Firestore without an image
+            db.collection('posts').add(newPost).then((docRef) => {
+                // Update the UI with the new post
+                const newComment = document.createElement('div');
+                newComment.innerHTML = `<strong>You:</strong> ${postInput}`;
+                commentsSection.appendChild(newComment);
+                document.getElementById('postInput').value = '';
+                document.getElementById('imageUpload').value = '';
             });
         }
+    }
 
-        // Call fetchPosts() to load initial posts when the page loads
-        fetchPosts();
+    // Function to fetch and display posts from Firestore
+    function fetchPosts() {
+        const commentsSection = document.getElementById('commentsSection');
+        commentsSection.innerHTML = ''; // Clear existing posts
 
-        document.getElementById('closePopup').addEventListener('click', function () {
-            document.getElementById('overlay').style.display = 'none';
-            document.getElementById('popup').style.display = 'none';
+        db.collection('posts').orderBy('timestamp', 'desc').get().then((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+                const post = doc.data();
+                const newComment = document.createElement('div');
+                newComment.innerHTML = `<strong>@${post.author || 'Anonymous'}:</strong> ${post.text}`;
+                if (post.imageUrl) {
+                    const img = document.createElement('img');
+                    img.src = post.imageUrl;
+                    img.alt = "Post Image";
+                    newComment.appendChild(img);
+                }
+                commentsSection.appendChild(newComment);
+            });
         });
+    }
 
-        // Show the home section by default
-        showSection('homeSection');
-    </script>
+    // Call fetchPosts() to load initial posts when the page loads
+    fetchPosts();
+
+    document.getElementById('closePopup').addEventListener('click', function () {
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('popup').style.display = 'none';
+    });
+
+    // Show the home section by default
+    showSection('homeSection');
+</script>
 </body>
 
 </html>
